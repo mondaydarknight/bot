@@ -13,13 +13,15 @@ import (
 )
 
 type BotService struct {
-	repo repository.BotRepository
+	adapter repository.BotAdapter
+	repo    repository.BotRepository
 }
 
 // Create a new application service instance.
 func NewBotService(ctx context.Context) *BotService {
+	adapter := infrastructure.NewBotAdapter(configs.AppConfig.LineChannelSecret, configs.AppConfig.LineAccessToken)
 	repo := infrastructure.NewBotRepository(ctx, options.Client().ApplyURI(configs.AppConfig.MongoUri))
-	return &BotService{repo}
+	return &BotService{adapter, repo}
 }
 
 // Store a push message from the webhook.
@@ -35,4 +37,16 @@ func (s *BotService) Webhook(events []*linebot.Event) error {
 		}
 	}
 	return s.repo.BulkSave(msgs)
+}
+
+// Send a push message to the LINE bot.
+func (s *BotService) Send(userId, text string) error {
+	msgs := []*entity.Message{{UserId: userId, Text: text, CreatedAt: time.Now()}}
+	if err := s.adapter.BulkSend(userId, msgs); err != nil {
+		return err
+	}
+	if err := s.repo.BulkSave(msgs); err != nil {
+		return err
+	}
+	return nil
 }
