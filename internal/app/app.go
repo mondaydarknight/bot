@@ -21,6 +21,7 @@ func handleErrors(c *gin.Context) {
 func SetupRoutes(r *gin.Engine, ctx context.Context) {
 	c := NewBotController(ctx)
 	r.Use(handleErrors)
+	r.GET("/api/v1/linebot/messages", c.get)
 	r.POST("/api/v1/linebot/messages", c.send)
 	r.POST("/api/v1/linebot/webhook", c.webhook)
 }

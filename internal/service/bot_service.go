@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"time"
 
 	"github.com/line/line-bot-sdk-go/v7/linebot"
@@ -9,7 +8,6 @@ import (
 	"github.com/molpadia/molpastream/internal/domain/entity"
 	"github.com/molpadia/molpastream/internal/domain/repository"
 	"github.com/molpadia/molpastream/internal/infrastructure"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type BotService struct {
@@ -18,9 +16,8 @@ type BotService struct {
 }
 
 // Create a new application service instance.
-func NewBotService(ctx context.Context) *BotService {
+func NewBotService(repo repository.BotRepository) *BotService {
 	adapter := infrastructure.NewBotAdapter(configs.AppConfig.LineChannelSecret, configs.AppConfig.LineAccessToken)
-	repo := infrastructure.NewBotRepository(ctx, options.Client().ApplyURI(configs.AppConfig.MongoUri))
 	return &BotService{adapter, repo}
 }
 
