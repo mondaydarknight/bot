@@ -8,3 +8,12 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+  web:
+    build:
+      context: .
+      target: dev
+    depends_on:
+      - mongo
+    env_file:
+      - .env
+    restart: always
